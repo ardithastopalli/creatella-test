@@ -2,7 +2,7 @@ import React from 'react'
 import Card from '../../shared/card/card'
 import AdCard from '../../shared/adCard/ads'
 import PropTypes from 'prop-types';
-
+import uuid from "uuid";
 
 class Grid extends React.Component {
     handleScroll = () => {
@@ -35,14 +35,14 @@ class Grid extends React.Component {
         const { products } = this.props
 
         const currentProducts = products.map((product) => (
-            <Card key={product.id} {...product} />
+            <Card key={uuid.v4()} {...product} />
         ))
 
         let productsWithAds = []
         for (let i = 1; i < currentProducts.length; i++) {
             productsWithAds.push(currentProducts[i])
             if (i !== 0 && (i % 20 ) === 0) {
-                productsWithAds.push(<AdCard />)
+                productsWithAds.push(<AdCard key={uuid.v4()} />)
             }
         }
         return (
