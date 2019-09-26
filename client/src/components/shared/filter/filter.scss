@@ -1,0 +1,16 @@
+.filter {
+    display: inline-block;
+
+    >label {
+        margin: 0 1rem;
+    }
+
+    >select {
+        text-transform: capitalize;
+        padding: .3rem .4rem;
+        
+        >option {
+            text-transform: capitalize;
+        }
+    }
+}
