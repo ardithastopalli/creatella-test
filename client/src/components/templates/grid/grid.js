@@ -42,7 +42,7 @@ class Grid extends React.Component {
         for (let i = 1; i < currentProducts.length; i++) {
             productsWithAds.push(currentProducts[i])
             if (i !== 0 && (i % 20 ) === 0) {
-                productsWithAds.push(<AdCard key={uuid.v4()} />)
+                productsWithAds.push(<AdCard key={i} />)
             }
         }
         return (

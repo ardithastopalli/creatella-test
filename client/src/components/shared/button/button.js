@@ -1,19 +1,11 @@
 import React, { Component } from 'react'
 
-class Button extends Component {
-    state = {
-        clicked: false
-    }
+function Button() {
+   const [clicked, setClick] = React.useState(false)
 
-    handleClick = () => {
-        this.setState({ clicked: !this.state.clicked })
-    }
-
-    render() {
-        const { clicked } = this.state
-        let text = clicked ? 'Bought' : 'Buy'
-        return <button onClick={this.handleClick}>{text}</button>
-    }
+    const handleClick = ()=> setClick(clicked=> !clicked)
+    const text = clicked ? 'Bought' : 'Buy'
+    return <button onClick={handleClick}>{text}</button>
 }
 
 export default Button
