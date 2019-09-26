@@ -130,7 +130,7 @@ class App extends React.Component {
           <Loader />
         }
         {!hasMore &&
-          <div>No more products</div>
+          <div style={{ fontSize: '1.4rem', margin: '1rem', textAlign: 'center'}}>No more products</div>
         }
       </div>
     )
