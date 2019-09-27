@@ -3,7 +3,6 @@ import { fetchAds } from '../../../api/api'
 import Loader from '../loader/loader';
 
 class AdCard extends Component {
-    
     state = {
         imageSrc: null
     }

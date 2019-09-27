@@ -14,7 +14,9 @@ class Grid extends React.Component {
         const lastCardOffset = lastCard.offsetTop + lastCard.clientHeight;
         const pageOffset = window.pageYOffset + window.innerHeight
         let bottomOffset = 20;
+
         if (pageOffset > lastCardOffset - bottomOffset) {
+            //if reached the end
             loadMore()
         }
     }
@@ -41,7 +43,7 @@ class Grid extends React.Component {
         let productsWithAds = []
         for (let i = 1; i < currentProducts.length; i++) {
             productsWithAds.push(currentProducts[i])
-            if (i !== 0 && (i % 20 ) === 0) {
+            if (i !== 0 && (i % 20) === 0) {
                 productsWithAds.push(<AdCard key={uuid.v4()} />)
             }
         }
@@ -55,6 +57,9 @@ class Grid extends React.Component {
 
 Grid.propTypes = {
     products: PropTypes.array,
-  };
-  
+    scrolling: PropTypes.bool,
+    hasMore: PropTypes.bool,
+    loadMore: PropTypes.func
+};
+
 export default Grid
