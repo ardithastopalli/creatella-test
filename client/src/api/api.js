@@ -5,10 +5,10 @@ export const fetchProducts = (page, limit,filter) => {
 	})
 }
 
-export const fetchAds = () => {
+export const fetchAds = (abort) => {
 	let id = Math.floor(Math.random() * 100);
 	const url = `ads?r=${id}`
-	return fetch(url).then(response => {
+	return fetch(url, abort).then(response => {
 		return response.url
 	})
 }
