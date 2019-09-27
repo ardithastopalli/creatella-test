@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { fetchAds } from '../../../api/api'
 import Loader from '../loader/loader';
 
@@ -18,7 +18,6 @@ function AdCard() {
     }, [])
 
     return (
-
         image ?
             (<div style={{
                 width: '100%',
@@ -43,7 +42,6 @@ function AdCard() {
                 width: '100%',
                 textAlign: 'center',
             }}><Loader /></div>)
-
     )
 }
 

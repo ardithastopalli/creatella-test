@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { fetchProducts } from '../api/api'
 import Grid from './templates/grid/grid';
 import Loader from './shared/loader/loader';
@@ -18,92 +17,87 @@ function App() {
   const [filterBy, setFilter] = React.useState('price')
   const [loadMore, setLoadMore] = React.useState(false)
 
+  React.useEffect(() => {
+    fetchInitialProducts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    //maek sure to retrigger
+  }, [filterBy])
 
+  const fetchInitialProducts = () => {
+    //promise handeling with chaining
+    //fetch first 15 products => update products state
+    setLoading(true)
+    fetchProducts(page, limit, filterBy).then(products => {
+      if (products.length) {
+        setProducts(products)
+        setLoading(false)
+        setPage(page=>page+1)
+      } else {
+        hasMore(false)
+        setPreFetchedproducts([])
+      }
+    }).catch(e => setError(true))
+  }
 
-  const handleSetError = () => setError(error => !error)
-  const setLoadingTrue = () => setLoading(true)
-  const setLoadingFalse = () => setLoading(false)
-  const setPreFetchedProduct = (preFetched) => setPreFetchedproducts(preFetched)
-  const setHasMoreFalse = () => setHasMore(false)
-  const incrementPage = () => setPage(page => page + 1)
+  React.useEffect(() => {
+    // preFetchProducts()
+    if(page!==0){
+      preFetchProducts()
+    } 
+    return () => { }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
 
-
-
+  React.useEffect(() => {
+    // preFetchProducts()
+    if(loadMore){
+      mergeProducts()
+    } 
+    return () => { }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadMore])
 
 
   const preFetchProducts = async () => {
-    setLoadingTrue()
     //promise handeling with async/await
     try {
       const products = await fetchProducts(page, limit, filterBy)
       if (products.length) {
         //always update the preFetchedProducts state
-        setPreFetchedProduct(products)
-        setLoadingFalse()
+        setPreFetchedproducts(products)
       } else {
         //no more products
         setPreFetchedproducts([])
-        setHasMoreFalse()
-        setLoadingFalse()
+        hasMore(false)
       }
     } catch (e) {
-      this.handleErrors()
+      setError(true)
     }
 
   }
 
   const mergeProducts = () => {
     setProducts([...products, ...preFetchedproducts])
-    setLoadingFalse()
+    setLoading(false)
     setScrolling(false)
-    setLoadMore(true)
-  }
-  React.useEffect(() => {
-    mergeProducts()
-  }, [loadMore])
-  const fetchInitialProducts = () => {
-    //promise handeling with chaining
-    //fetch first 15 products => update products state
-    fetchProducts(page, limit, filterBy).then(products => {
-      if (products.length) {
-        setProducts(products)
-        setLoadingFalse()
-        incrementPage()
-      } else {
-        setHasMoreFalse()
-        setPreFetchedproducts([])
-      }
-    }).catch(e => this.handleErrors())
+    setLoadMore(false)
   }
 
   const loadMoreProducts = () => {
-    setPage(page => page + 1)
     setScrolling(true)
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-      scrolling: true
-    }), () => this.mergeProducts())
+    setPage(page => page + 1)
+    setLoadMore(true)
   }
 
   const handleFilterChange = (filter) => {
     const { value } = filter.target
     //reset state and trigger refetching with the new filter
     setFilter(value)
-    setLoadingTrue()
+    setLoading(true)
     setPage(0)
     setHasMore(true)
     setProducts([])
   }
-
-  React.useEffect(() => {
-    fetchInitialProducts()
-  }, [])
-
-  React.useEffect(() => {
-    preFetchProducts()
-
-    return () => { }
-  }, [products])
 
   return (
     <div id="container" >
@@ -134,16 +128,5 @@ function App() {
     </div>
   )
 }
-
-App.propTypes = {
-  products: PropTypes.array,
-  preFetchedproducts: PropTypes.array,
-  page: PropTypes.number,
-  limit: PropTypes.number,
-  error: PropTypes.bool,
-  hasMore: PropTypes.bool,
-  loading: PropTypes.bool,
-  scrolling: PropTypes.bool,
-};
 
 export default App;

@@ -1,10 +1,10 @@
 import React from 'react'
 import Card from '../../shared/card/card'
 import AdCard from '../../shared/adCard/ads'
-import PropTypes from 'prop-types';
 import uuid from "uuid";
 
-function Grid({ scrolling, hasMore, loadMore, products }) {
+function Grid(props) {
+    const { scrolling, hasMore, loadMore, products } = props
     const handleScroll = () => {
         if (scrolling) return
         if (!hasMore) return
@@ -19,7 +19,7 @@ function Grid({ scrolling, hasMore, loadMore, products }) {
     }
 
     React.useEffect(() => {
-        document.addEventListener('scroll', (event) => {
+        window.addEventListener('scroll', (event) => {
             handleScroll(event)
         })
 
@@ -27,7 +27,6 @@ function Grid({ scrolling, hasMore, loadMore, products }) {
             window.removeEventListener('scroll', handleScroll);
         };
     })
-
 
     const currentProducts = products.map((product) => (
         <Card key={uuid.v4()} {...product} />
