@@ -103,7 +103,7 @@ class App extends React.Component {
       products,
       scrolling,
 
-    } = this.state;
+    } = this.state
 
 
     return (
@@ -148,4 +148,4 @@ App.propTypes = {
   scrolling: PropTypes.bool,
 };
 
-export default App;
+export default App
