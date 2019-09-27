@@ -45,8 +45,6 @@ function AdCard() {
             }}><Loader /></div>)
 
     )
-
-
 }
 
 export default AdCard

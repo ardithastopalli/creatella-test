@@ -4,9 +4,8 @@ import AdCard from '../../shared/adCard/ads'
 import PropTypes from 'prop-types';
 import uuid from "uuid";
 
-class Grid extends React.Component {
-    handleScroll = () => {
-        const { scrolling, hasMore, loadMore } = this.props
+function Grid({ scrolling, hasMore, loadMore, products }) {
+    const handleScroll = () => {
         if (scrolling) return
         if (!hasMore) return
         const allCards = document.querySelectorAll('.grid>div')
@@ -19,42 +18,34 @@ class Grid extends React.Component {
         }
     }
 
-    componentDidMount() {
+    React.useEffect(() => {
         document.addEventListener('scroll', (event) => {
-            this.handleScroll(event)
+            handleScroll(event)
         })
-    }
 
-    componentWillUnmount() {
-        document.removeEventListener('scroll', (event) => {
-            this.handleScroll(event)
-        })
-    }
+        return function cleanup() {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    })
 
-    render() {
-        const { products } = this.props
 
-        const currentProducts = products.map((product) => (
-            <Card key={uuid.v4()} {...product} />
-        ))
+    const currentProducts = products.map((product) => (
+        <Card key={uuid.v4()} {...product} />
+    ))
 
-        let productsWithAds = []
-        for (let i = 1; i < currentProducts.length; i++) {
-            productsWithAds.push(currentProducts[i])
-            if (i !== 0 && (i % 20 ) === 0) {
-                productsWithAds.push(<AdCard key={i} />)
-            }
+    let productsWithAds = []
+    for (let i = 1; i < currentProducts.length; i++) {
+        productsWithAds.push(currentProducts[i])
+        if (i !== 0 && (i % 20) === 0) {
+            productsWithAds.push(<AdCard key={i} />)
         }
-        return (
-            <div style={{ display: 'flex', flexWrap: 'wrap', }} className="grid">
-                {productsWithAds}
-            </div>
-        )
     }
+    return (
+        <div style={{ display: 'flex', flexWrap: 'wrap', }} className="grid">
+            {productsWithAds}
+        </div>
+    )
+
 }
 
-Grid.propTypes = {
-    products: PropTypes.array,
-  };
-  
 export default Grid

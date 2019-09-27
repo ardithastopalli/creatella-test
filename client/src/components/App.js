@@ -6,41 +6,45 @@ import Loader from './shared/loader/loader';
 import Filter from './shared/filter/filter'
 import './App.scss';
 
-class App extends React.Component {
-  state = {
-    products: [],
-    preFetchedproducts: [],
-    page: 0,
-    limit: 15,
-    error: false,
-    hasMore: true,
-    loading: true,
-    scrolling: false,
-    filterBy: 'price'
-  }
+function App() {
+  const [products, setProducts] = React.useState([])
+  const [preFetchedproducts, setPreFetchedproducts] = React.useState([])
+  const [page, setPage] = React.useState(0)
+  const limit = 15
+  const [error, setError] = React.useState(false)
+  const [hasMore, setHasMore] = React.useState(true)
+  const [loading, setLoading] = React.useState(true)
+  const [scrolling, setScrolling] = React.useState(false)
+  const [filterBy, setFilter] = React.useState('price')
+  const [loadMore, setLoadMore] = React.useState(false)
 
-  handleErrors = () => {
-    this.setState({ error: true })
-  }
 
-  preFetchProducts = async () => {
-    const { page, limit, filterBy } = this.state
-    this.setState({
-      loading: true
-    })
+
+  const handleSetError = () => setError(error => !error)
+  const setLoadingTrue = () => setLoading(true)
+  const setLoadingFalse = () => setLoading(false)
+  const setPreFetchedProduct = (preFetched) => setPreFetchedproducts(preFetched)
+  const setHasMoreFalse = () => setHasMore(false)
+  const incrementPage = () => setPage(page => page + 1)
+
+
+
+
+
+  const preFetchProducts = async () => {
+    setLoadingTrue()
     //promise handeling with async/await
     try {
       const products = await fetchProducts(page, limit, filterBy)
       if (products.length) {
         //always update the preFetchedProducts state
-        this.setState({ preFetchedproducts: products, loading: false })
+        setPreFetchedProduct(products)
+        setLoadingFalse()
       } else {
         //no more products
-        this.setState({
-          preFetchedproducts: [],
-          hasMore: false,
-          loading: false
-        })
+        setPreFetchedproducts([])
+        setHasMoreFalse()
+        setLoadingFalse()
       }
     } catch (e) {
       this.handleErrors()
@@ -48,93 +52,87 @@ class App extends React.Component {
 
   }
 
-  mergeProducts = () => {
-    const { products, preFetchedproducts } = this.state
-    const final = [...products, ...preFetchedproducts]
-    this.setState({
-      products: final,
-      loading: false,
-      scrolling: false
-    }, () => this.preFetchProducts())
+  const mergeProducts = () => {
+    setProducts([...products, ...preFetchedproducts])
+    setLoadingFalse()
+    setScrolling(false)
+    setLoadMore(true)
   }
-
-  fetchInitialProducts = () => {
-    const { page, limit, filterBy } = this.state;
+  React.useEffect(() => {
+    mergeProducts()
+  }, [loadMore])
+  const fetchInitialProducts = () => {
     //promise handeling with chaining
     //fetch first 15 products => update products state
     fetchProducts(page, limit, filterBy).then(products => {
       if (products.length) {
-        this.setState(prevState => ({
-          products: products,
-          loading: false,
-          page: prevState.page + 1 //update page count
-        }), () => {
-          //make sure setState has finished (page:1)=> fetch next 15 product 
-          this.preFetchProducts()
-        })
+        setProducts(products)
+        setLoadingFalse()
+        incrementPage()
       } else {
-        this.setState({ hasMore: false, preFetchedproducts: [], })
+        setHasMoreFalse()
+        setPreFetchedproducts([])
       }
     }).catch(e => this.handleErrors())
   }
 
-  loadMore = () => {
+  const loadMoreProducts = () => {
+    setPage(page => page + 1)
+    setScrolling(true)
     this.setState(prevState => ({
       page: prevState.page + 1,
       scrolling: true
     }), () => this.mergeProducts())
   }
 
-  handleFilterChange = (filter) => {
+  const handleFilterChange = (filter) => {
     const { value } = filter.target
     //reset state and trigger refetching with the new filter
-    this.setState({ filterBy: value, loading: true, page: 0, hasMore: true, products: [] }, () => this.fetchInitialProducts())
+    setFilter(value)
+    setLoadingTrue()
+    setPage(0)
+    setHasMore(true)
+    setProducts([])
   }
 
-  componentDidMount() {
-    this.fetchInitialProducts()
-  }
+  React.useEffect(() => {
+    fetchInitialProducts()
+  }, [])
 
-  render() {
-    const {
-      error,
-      hasMore,
-      loading,
-      products,
-      scrolling,
+  React.useEffect(() => {
+    preFetchProducts()
 
-    } = this.state;
+    return () => { }
+  }, [products])
 
-
-    return (
-      <div id="container" >
-        <div className="header">
-          <h1>Emoji Shop</h1>
-          <Filter sendFilter={filter => this.handleFilterChange(filter)} />
-          {hasMore &&
-            <p>Scroll down to load more!!</p>
-          }
-        </div>
-        <Grid
-          hasMore={hasMore}
-          scrolling={scrolling}
-          products={products}
-          loadMore={this.loadMore} />
-
-        {error &&
-          <div style={{ color: '#900' }}>
-            {error}
-          </div>
-        }
-        {loading &&
-          <Loader />
-        }
-        {!hasMore &&
-          <div style={{ fontSize: '1.4rem', margin: '1rem', textAlign: 'center'}}>No more products</div>
+  return (
+    <div id="container" >
+      <div className="header">
+        <h1>Emoji Shop</h1>
+        <Filter sendFilter={filter => handleFilterChange(filter)} />
+        {hasMore &&
+          <p>Scroll down to load more!!</p>
         }
       </div>
-    )
-  }
+      <Grid
+        hasMore={hasMore}
+        scrolling={scrolling}
+        products={products}
+        loadMore={loadMoreProducts} />
+
+      {error &&
+        <div style={{ color: '#900' }}>
+          {error}
+        </div>
+      }
+      {loading &&
+        <Loader />
+      }
+      {!hasMore &&
+        <div style={{ fontSize: '1.4rem', margin: '1rem', textAlign: 'center' }}>No more products</div>
+      }
+    </div>
+  )
 }
 
 App.propTypes = {
